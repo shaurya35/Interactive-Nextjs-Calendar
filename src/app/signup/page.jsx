@@ -22,7 +22,7 @@ export default function Signup() {
     const data = await res.json();
     if (res.ok) {
       localStorage.setItem("token", data.token);
-      router.push("/login");
+      router.push("/dashboard");
     } else {
       console.error(data.error);
     }
