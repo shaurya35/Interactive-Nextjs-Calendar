@@ -1,4 +1,5 @@
 "use client";
+
 import React, { useState, useEffect } from "react";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
@@ -15,6 +16,7 @@ const API_BASE_URL = "http://localhost:3000/api/users/";
 
 const Calendar = ({ userId }) => {
   const [currentEvents, setCurrentEvents] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [newEventTitle, setNewEventTitle] = useState("");
   const [newEventDescription, setNewEventDescription] = useState("");
@@ -22,23 +24,27 @@ const Calendar = ({ userId }) => {
   const [startTime, setStartTime] = useState("");
   const [endTime, setEndTime] = useState("");
 
+  const fetchEvents = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch(`${API_BASE_URL}${userId}/events`);
+      const data = await res.json();
+      const events = data.events.map((event) => ({
+        id: event.id,
+        title: event.title,
+        start: event.startDate,
+        end: event.endDate,
+        description: event.description,
+      }));
+      setCurrentEvents(events);
+    } catch (error) {
+      console.error("Error fetching events:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchEvents = async () => {
-      try {
-        const res = await fetch(`${API_BASE_URL}${userId}/events`);
-        const data = await res.json();
-        const events = data.events.map((event) => ({
-          id: event.id,
-          title: event.title,
-          start: event.startDate,
-          end: event.endDate,
-          description: event.description,
-        }));
-        setCurrentEvents(events);
-      } catch (error) {
-        console.error("Error fetching events:", error);
-      }
-    };
     fetchEvents();
   }, [userId]);
 
@@ -49,12 +55,16 @@ const Calendar = ({ userId }) => {
 
   const handleEventClick = async (selected) => {
     const eventId = selected.event.id;
-    if (window.confirm(`Are you sure you want to delete the event "${selected.event.title}"?`)) {
+    if (
+      window.confirm(
+        `Are you sure you want to delete the event "${selected.event.title}"?`
+      )
+    ) {
       try {
         await fetch(`${API_BASE_URL}${userId}/events/${eventId}`, {
           method: "DELETE",
         });
-        selected.event.remove();
+        await fetchEvents();
       } catch (error) {
         console.error("Error deleting event:", error);
       }
@@ -95,16 +105,8 @@ const Calendar = ({ userId }) => {
           },
           body: JSON.stringify(newEvent),
         });
-        const data = await res.json();
         if (res.ok) {
-          const calendarApi = selectedDate.view.calendar;
-          calendarApi.addEvent({
-            id: data.event.id,
-            title: data.event.title,
-            start: data.event.startDate,
-            end: data.event.endDate,
-            allDay: false,
-          });
+          await fetchEvents();
           handleCloseDialog();
         }
       } catch (error) {
@@ -130,6 +132,7 @@ const Calendar = ({ userId }) => {
         },
         body: JSON.stringify(updatedEvent),
       });
+      await fetchEvents();
     } catch (error) {
       console.error("Error updating event:", error);
     }
@@ -142,25 +145,29 @@ const Calendar = ({ userId }) => {
           <div className="py-10 text-2xl font-extrabold px-7">
             Calendar Events
           </div>
-          <ul className="space-y-4">
-            {currentEvents.length <= 0 && (
-              <div className="italic text-center text-gray-400">
-                No Events Present
-              </div>
-            )}
-            {currentEvents.map((event) => (
-              <li
-                className="border border-gray-200 shadow px-4 py-2 rounded-md text-blue-800"
-                key={event.id}
-              >
-                {event.title}
-                <br />
-                <label className="text-slate-950">
-                  {new Date(event.start).toLocaleString()}
-                </label>
-              </li>
-            ))}
-          </ul>
+          {loading ? (
+            <div className="text-center text-gray-400">Loading...</div>
+          ) : (
+            <ul className="space-y-4">
+              {currentEvents.length <= 0 && (
+                <div className="italic text-center text-gray-400">
+                  No Events Present
+                </div>
+              )}
+              {currentEvents.map((event) => (
+                <li
+                  className="border border-gray-200 shadow px-4 py-2 rounded-md text-blue-800"
+                  key={event.id}
+                >
+                  {event.title}
+                  <br />
+                  <label className="text-slate-950">
+                    {new Date(event.start).toLocaleString()}
+                  </label>
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
 
         <div className="w-9/12 mt-8">
@@ -180,7 +187,7 @@ const Calendar = ({ userId }) => {
             select={handleDateClick}
             eventClick={handleEventClick}
             events={currentEvents}
-            eventChange={handleEventChange} 
+            eventChange={handleEventChange}
           />
         </div>
       </div>
