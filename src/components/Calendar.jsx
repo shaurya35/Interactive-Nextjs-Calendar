@@ -12,7 +12,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 
-const API_BASE_URL = "http://localhost:3000/api/users/";
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3000/api/users/';
 
 const Calendar = ({ userId }) => {
   const [currentEvents, setCurrentEvents] = useState([]);
