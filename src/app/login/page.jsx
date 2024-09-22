@@ -9,7 +9,7 @@ export default function Login() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+  
     const res = await fetch("/api/auth/login", {
       method: "POST",
       headers: {
@@ -17,11 +17,14 @@ export default function Login() {
       },
       body: JSON.stringify({ email, password }),
     });
-
+  
     const data = await res.json();
+    console.log("Login response:", data); 
+  
     if (res.ok) {
       localStorage.setItem("token", data.token);
-      router.push("/dashboard");
+      console.log("UserId:", data.userId); 
+      router.push(`/dashboard/${data.userId}`);
     } else {
       console.error(data.error);
     }

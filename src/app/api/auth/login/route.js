@@ -19,8 +19,11 @@ export async function POST(request) {
       expiresIn: "1h",
     });
 
-    return NextResponse.json({ token }, { status: 200 });
+    return NextResponse.json({ token, userId: user.id }, { status: 200 });
   } catch (error) {
-    return NextResponse.json({ error: "Something is up with our server!" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Something is up with our server!" },
+      { status: 500 }
+    );
   }
 }
