@@ -4,10 +4,7 @@ import { verifyToken } from "@/lib/utils";
 
 export async function GET(req, { params }) {
   const { userId } = params;
-  const token = req.headers.get("authorization")?.split(" ")[1];
-  if (!token || !verifyToken(token, userId)) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+
   try {
     const events = await prisma.event.findMany({
       where: { userId: parseInt(userId) },
@@ -24,12 +21,7 @@ export async function GET(req, { params }) {
 
 export async function POST(req, { params }) {
   const { userId } = params;
-  const token = req.headers.get("authorization")?.split(" ")[1];
 
-  // Token verification
-  if (!token || !verifyToken(token, userId)) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
 
   try {
     const { title,description, startDate, endDate } = await req.json();

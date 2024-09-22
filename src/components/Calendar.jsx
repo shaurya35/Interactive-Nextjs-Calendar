@@ -1,11 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
-import {
-  formatDate,
-  DateSelectArg,
-  EventClickArg,
-} from "@fullcalendar/core";
+import React, { useState, useEffect } from "react";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
@@ -17,7 +12,10 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 
-const Calendar = () => {
+// Your API base URL for CRUD operations
+const API_BASE_URL = "http://localhost:3000/api/users/";
+
+const Calendar = ({ userId }) => {
   const [currentEvents, setCurrentEvents] = useState([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [newEventTitle, setNewEventTitle] = useState("");
@@ -26,18 +24,43 @@ const Calendar = () => {
   const [startTime, setStartTime] = useState("");
   const [endTime, setEndTime] = useState("");
 
+  // Fetch all events when the component mounts
+  useEffect(() => {
+    const fetchEvents = async () => {
+      try {
+        const res = await fetch(`${API_BASE_URL}${userId}/events`);
+        const data = await res.json();
+        const events = data.events.map((event) => ({
+          id: event.id,
+          title: event.title,
+          start: event.startDate,
+          end: event.endDate,
+          description: event.description,
+        }));
+        setCurrentEvents(events);
+      } catch (error) {
+        console.error("Error fetching events:", error);
+      }
+    };
+    fetchEvents();
+  }, [userId]);
+
   const handleDateClick = (selected) => {
     setSelectedDate(selected);
     setIsDialogOpen(true);
   };
 
-  const handleEventClick = (selected) => {
-    if (
-      window.confirm(
-        `Are you sure you want to delete the event "${selected.event.title}"?`
-      )
-    ) {
-      selected.event.remove();
+  const handleEventClick = async (selected) => {
+    const eventId = selected.event.id;
+    if (window.confirm(`Are you sure you want to delete the event "${selected.event.title}"?`)) {
+      try {
+        await fetch(`${API_BASE_URL}${userId}/events/${eventId}`, {
+          method: "DELETE",
+        });
+        selected.event.remove();
+      } catch (error) {
+        console.error("Error deleting event:", error);
+      }
     }
   };
 
@@ -49,30 +72,69 @@ const Calendar = () => {
     setEndTime("");
   };
 
-  const handleAddEvent = (e) => {
+  const handleAddEvent = async (e) => {
     e.preventDefault();
     if (newEventTitle && newEventDescription && selectedDate) {
-      const calendarApi = selectedDate.view.calendar; 
-      calendarApi.unselect(); 
-
       const startDateTime = new Date(selectedDate.start);
       const endDateTime = new Date(selectedDate.start);
       const [startHour, startMinute] = startTime.split(":");
       const [endHour, endMinute] = endTime.split(":");
-      
+
       startDateTime.setHours(startHour, startMinute);
       endDateTime.setHours(endHour, endMinute);
 
       const newEvent = {
-        id: `${selectedDate.start.toISOString()}-${newEventTitle}`,
         title: newEventTitle,
-        start: startDateTime,
-        end: endDateTime,
-        allDay: false,
+        description: newEventDescription,
+        startDate: startDateTime,
+        endDate: endDateTime,
       };
 
-      calendarApi.addEvent(newEvent);
-      handleCloseDialog();
+      try {
+        const res = await fetch(`${API_BASE_URL}${userId}/events`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(newEvent),
+        });
+        const data = await res.json();
+        if (res.ok) {
+          const calendarApi = selectedDate.view.calendar;
+          calendarApi.addEvent({
+            id: data.event.id,
+            title: data.event.title,
+            start: data.event.startDate,
+            end: data.event.endDate,
+            allDay: false,
+          });
+          handleCloseDialog();
+        }
+      } catch (error) {
+        console.error("Error adding event:", error);
+      }
+    }
+  };
+
+  const handleEventChange = async (changeInfo) => {
+    const event = changeInfo.event;
+    const updatedEvent = {
+      title: event.title,
+      startDate: event.start,
+      endDate: event.end,
+      description: event.extendedProps.description,
+    };
+
+    try {
+      await fetch(`${API_BASE_URL}${userId}/events/${event.id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(updatedEvent),
+      });
+    } catch (error) {
+      console.error("Error updating event:", error);
     }
   };
 
@@ -97,13 +159,7 @@ const Calendar = () => {
                 {event.title}
                 <br />
                 <label className="text-slate-950">
-                  {formatDate(event.start, {
-                    year: "numeric",
-                    month: "short",
-                    day: "numeric",
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  })}{" "}
+                  {new Date(event.start).toLocaleString()}
                 </label>
               </li>
             ))}
@@ -126,12 +182,8 @@ const Calendar = () => {
             dayMaxEvents={true}
             select={handleDateClick}
             eventClick={handleEventClick}
-            eventsSet={(events) => setCurrentEvents(events)}
-            initialEvents={
-              typeof window !== "undefined"
-                ? JSON.parse(localStorage.getItem("events") || "[]")
-                : []
-            }
+            events={currentEvents}
+            eventChange={handleEventChange} // Updates event in the backend on change
           />
         </div>
       </div>

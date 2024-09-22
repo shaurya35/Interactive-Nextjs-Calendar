@@ -4,11 +4,6 @@ import { verifyToken } from "@/lib/utils";
 
 export async function GET(req, { params }) {
   const { userId, eventId } = params;
-  const token = req.headers.get("authorization")?.split(" ")[1];
-
-  if (!token || !verifyToken(token, userId)) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
 
   try {
     const event = await prisma.event.findUnique({
@@ -32,11 +27,6 @@ export async function GET(req, { params }) {
 // PUT route to update an existing event for the user
 export async function PUT(req, { params }) {
   const { userId, eventId } = params;
-  const token = req.headers.get("authorization")?.split(" ")[1];
-
-  if (!token || !verifyToken(token, userId)) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
 
   try {
     const { title, description, startDate, endDate } = await req.json();
@@ -71,11 +61,7 @@ export async function PUT(req, { params }) {
 // DELETE route to delete an event for the user
 export async function DELETE(req, { params }) {
   const { userId, eventId } = params;
-  const token = req.headers.get("authorization")?.split(" ")[1];
 
-  if (!token || !verifyToken(token, userId)) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
 
   try {
     await prisma.event.delete({
