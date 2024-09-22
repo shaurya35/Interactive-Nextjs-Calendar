@@ -1,36 +1,78 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
-## Getting Started
+# Interactive-Nextjs-Calendar
 
-First, run the development server:
+Interactive-Nextjs-Calendar is a dynamic web application designed for seamless event management and scheduling. This project focuses on enhancing productivity by providing users with an intuitive interface for managing their calendar events.
+
+## Table of Contents
+
+- [Overview](#Overview)
+- [Features](#features)
+- [Dependencies](#dependencies)
+- [Git Setup](#Git-Setup)
+- [Client Setup](#Client-Setup)
+- [Server Setup](#Server-Setup)
+- [Usage](#usage)
+- [Contributors](#contributors)
+
+## Overview
+
+- Interactive-Nextjs-Calendar simplifies event management by allowing users to create, edit, and delete events effortlessly. Built with Next.js and Tailwind CSS, it offers a responsive and user-friendly experience.
+
+## Features
+
+- **Event Management**: Create, update, and delete events with ease.
+- **User Authentication**: Secure login with email verification and OTP.
+- **Responsive Design**: Works seamlessly across all devices.
+- **Real-Time Updates**: Instant synchronization of events.
+- **User-Friendly Interface**: Intuitive navigation and design.
+
+## Dependencies
+
+- Next.js
+- React
+- Tailwind CSS
+- PostgreSQL (Neon)
+- Express
+- Git
+- GitHub
+
+## Git-Setup
+
+Clone the repository:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone https://github.com/shaurya35/Interactive-Nextjs-Calendark
+cd Interactive-Nextjs-Calendark
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Initial Setup
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+1. Redirect to server:
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+```bash
+npm install -g pnpm
+```
 
-## Learn More
+2. Install the dependencies:
+```bash
+pnpm install
+```
 
-To learn more about Next.js, take a look at the following resources:
+3. Run the Development server:
+```bash
+pnpm dev
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Create a .env file:
+```bash
+DATABASE_URL=
+JWT_SECRET=
+```
+## Usage
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+Access the app in your web browser at `http://localhost:3000/`.
 
-## Deploy on Vercel
+## Contributors
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- Shaurya ([LinkedIn](https://www.linkedin.com/in/shaurya--jha/))
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
