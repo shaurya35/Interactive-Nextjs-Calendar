@@ -9,7 +9,7 @@ export default function Login() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
+
     const res = await fetch("/api/auth/login", {
       method: "POST",
       headers: {
@@ -17,13 +17,13 @@ export default function Login() {
       },
       body: JSON.stringify({ email, password }),
     });
-  
+
     const data = await res.json();
-    console.log("Login response:", data); 
-  
+    console.log("Login response:", data);
+
     if (res.ok) {
       localStorage.setItem("token", data.token);
-      console.log("UserId:", data.userId); 
+      console.log("UserId:", data.userId);
       router.push(`/dashboard/${data.userId}`);
     } else {
       console.error(data.error);
@@ -69,7 +69,7 @@ export default function Login() {
             href="/signup"
             className="inline-block align-baseline font-bold text-sm text-blue-500 hover:text-blue-800"
           >
-            Don't have an account? Sign up
+            Don&apos;t have an account? Sign up
           </a>
         </div>
       </form>
