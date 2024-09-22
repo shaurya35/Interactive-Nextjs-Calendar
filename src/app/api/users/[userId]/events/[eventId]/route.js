@@ -4,16 +4,13 @@ import { verifyToken } from "@/lib/utils";
 
 export async function GET(req, { params }) {
   const { userId, eventId } = params;
-
   try {
     const event = await prisma.event.findUnique({
       where: { id: parseInt(eventId) },
     });
-
     if (!event) {
       return NextResponse.json({ error: "Event not found" }, { status: 404 });
     }
-
     return NextResponse.json({ event });
   } catch (error) {
     console.error("Error fetching event:", error);
@@ -24,7 +21,6 @@ export async function GET(req, { params }) {
   }
 }
 
-// PUT route to update an existing event for the user
 export async function PUT(req, { params }) {
   const { userId, eventId } = params;
 
@@ -58,11 +54,8 @@ export async function PUT(req, { params }) {
   }
 }
 
-// DELETE route to delete an event for the user
 export async function DELETE(req, { params }) {
   const { userId, eventId } = params;
-
-
   try {
     await prisma.event.delete({
       where: { id: parseInt(eventId) },

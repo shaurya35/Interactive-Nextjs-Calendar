@@ -4,7 +4,6 @@ import { verifyToken } from "@/lib/utils";
 
 export async function GET(req, { params }) {
   const { userId } = params;
-
   try {
     const events = await prisma.event.findMany({
       where: { userId: parseInt(userId) },
@@ -21,27 +20,20 @@ export async function GET(req, { params }) {
 
 export async function POST(req, { params }) {
   const { userId } = params;
-
-
   try {
     const { title,description, startDate, endDate } = await req.json();
-
-    // Validate incoming data
     if (!title ||!description || !startDate || !endDate) {
       return NextResponse.json(
         { error: "Missing required fields (title, startDate, endDate)" },
         { status: 400 }
       );
     }
-
     if (new Date(startDate) >= new Date(endDate)) {
       return NextResponse.json(
         { error: "Start date must be before end date" },
         { status: 400 }
       );
     }
-
-    // Create new event
     const event = await prisma.event.create({
       data: {
         title,

@@ -1,5 +1,4 @@
 "use client";
-
 import React, { useState, useEffect } from "react";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
@@ -12,7 +11,6 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 
-// Your API base URL for CRUD operations
 const API_BASE_URL = "http://localhost:3000/api/users/";
 
 const Calendar = ({ userId }) => {
@@ -24,7 +22,6 @@ const Calendar = ({ userId }) => {
   const [startTime, setStartTime] = useState("");
   const [endTime, setEndTime] = useState("");
 
-  // Fetch all events when the component mounts
   useEffect(() => {
     const fetchEvents = async () => {
       try {
@@ -183,7 +180,7 @@ const Calendar = ({ userId }) => {
             select={handleDateClick}
             eventClick={handleEventClick}
             events={currentEvents}
-            eventChange={handleEventChange} // Updates event in the backend on change
+            eventChange={handleEventChange} 
           />
         </div>
       </div>
