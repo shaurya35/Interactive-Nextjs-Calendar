@@ -1,70 +1,29 @@
-// src/app/api/events/[userId]/route.js
-
 import prisma from "@/lib/prisma";
 import { NextResponse } from "next/server";
-import { verifyToken } from "@/lib/utils"; // You need a function to verify the token
+import { verifyToken } from "@/lib/utils";
 
-// GET route to fetch all events for a specific user
 export async function GET(req, { params }) {
-  const { userId } = params;
-
-  try {
-    const events = await prisma.event.findMany({
-      where: { userId: parseInt(userId) },
-    });
-    return NextResponse.json({ events });
-  } catch (error) {
-    console.error("Error fetching events:", error);
-    return NextResponse.json(
-      { error: "Failed to fetch events" },
-      { status: 500 }
-    );
-  }
-}
-
-// POST route to add an event for the user
-export async function POST(req, { params }) {
-  const { userId } = params;
+  const { userId, eventId } = params;
   const token = req.headers.get("authorization")?.split(" ")[1];
 
-  // Token verification
   if (!token || !verifyToken(token, userId)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   try {
-    const { title, startDate, endDate } = await req.json();
-
-    // Validate incoming data
-    if (!title || !startDate || !endDate) {
-      return NextResponse.json(
-        { error: "Missing required fields (title, startDate, endDate)" },
-        { status: 400 }
-      );
-    }
-
-    if (new Date(startDate) >= new Date(endDate)) {
-      return NextResponse.json(
-        { error: "Start date must be before end date" },
-        { status: 400 }
-      );
-    }
-
-    // Create new event
-    const event = await prisma.event.create({
-      data: {
-        title,
-        startDate: new Date(startDate),
-        endDate: new Date(endDate),
-        userId: parseInt(userId),
-      },
+    const event = await prisma.event.findUnique({
+      where: { id: parseInt(eventId) },
     });
+
+    if (!event) {
+      return NextResponse.json({ error: "Event not found" }, { status: 404 });
+    }
 
     return NextResponse.json({ event });
   } catch (error) {
-    console.error("Error creating event:", error);
+    console.error("Error fetching event:", error);
     return NextResponse.json(
-      { error: "Failed to create event" },
+      { error: "Failed to fetch event" },
       { status: 500 }
     );
   }
@@ -72,7 +31,7 @@ export async function POST(req, { params }) {
 
 // PUT route to update an existing event for the user
 export async function PUT(req, { params }) {
-  const { userId, eventId } = params; // Expect eventId in the URL
+  const { userId, eventId } = params;
   const token = req.headers.get("authorization")?.split(" ")[1];
 
   if (!token || !verifyToken(token, userId)) {
@@ -80,9 +39,9 @@ export async function PUT(req, { params }) {
   }
 
   try {
-    const { title, startDate, endDate } = await req.json();
+    const { title, description, startDate, endDate } = await req.json();
 
-    if (!title || !startDate || !endDate) {
+    if (!title || !description || !startDate || !endDate) {
       return NextResponse.json(
         { error: "Missing required fields (title, startDate, endDate)" },
         { status: 400 }
@@ -93,6 +52,7 @@ export async function PUT(req, { params }) {
       where: { id: parseInt(eventId) },
       data: {
         title,
+        description,
         startDate: new Date(startDate),
         endDate: new Date(endDate),
       },
@@ -130,4 +90,3 @@ export async function DELETE(req, { params }) {
     );
   }
 }
-
