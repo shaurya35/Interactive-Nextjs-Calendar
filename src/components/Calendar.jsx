@@ -28,7 +28,6 @@ const Calendar = ({ userId }) => {
   
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   
-
   const fetchEvents = async () => {
     setLoading(true);
     try {
