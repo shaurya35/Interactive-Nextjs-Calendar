@@ -12,17 +12,22 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3000/api/users/';
+const API_BASE_URL ='http://localhost:3000/api/users/';
 
 const Calendar = ({ userId }) => {
+  
   const [currentEvents, setCurrentEvents] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [newEventTitle, setNewEventTitle] = useState("");
   const [newEventDescription, setNewEventDescription] = useState("");
   const [selectedDate, setSelectedDate] = useState(null);
+  
   const [startTime, setStartTime] = useState("");
   const [endTime, setEndTime] = useState("");
+  
+  const [loading, setLoading] = useState(true);
+  
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  
 
   const fetchEvents = async () => {
     setLoading(true);
